@@ -1,3 +1,5 @@
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/frutti93/homeserver/build%20latest) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/frutti93/homeserver/build%20tagged) ![GitHub last commit](https://img.shields.io/github/last-commit/frutti93/homeserver)
+
 # nextcloud-pihole-homeserver
 Setup of my homeserver, running on my Raspberry Pi 4 with Arch Linux ARM (64bit). 
 
