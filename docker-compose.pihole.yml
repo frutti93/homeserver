@@ -10,7 +10,7 @@ networks:
 
 services:
   pihole:
-    image: pihole/pihole:v5.8
+    image: pihole/pihole:latest
     dns:
       - 127.0.0.1
       - 1.1.1.1

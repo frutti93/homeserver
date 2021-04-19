@@ -16,7 +16,7 @@ volumes:
 
 services:
   borgmatic:
-    image: frutti93/borgmatic:latest
+    image: frutti93/borgmatic:1.0.2
     container_name: borgmatic
     networks:
       - backend

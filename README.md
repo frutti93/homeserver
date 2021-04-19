@@ -28,7 +28,7 @@ DISCLAIMER: This is also my repository.
 This runs a complete nextcloud server, with MariaDB and Redis behind the reverse proxy. 
 The default setup uses a preconfigured image by be, which contains:
 * Activated cronjob
-* Possibility to preinstall apps, the included compose installs calendar, tasks, previewgenerator, keeweb`
+* Possibility to preinstall apps, the included compose installs calendar, tasks, previewgenerator, keeweb
 * Preview generator will be run once a day to auto generate image previews
 * *will be updated...*
 

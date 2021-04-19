@@ -94,7 +94,7 @@ services:
 
 
   ddns-updater:
-    image: qmcgaw/ddns-updater:v2
+    image: qmcgaw/ddns-updater:latest
     depends_on:
       -  traefik
     volumes:
