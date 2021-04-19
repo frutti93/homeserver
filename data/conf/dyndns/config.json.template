@@ -1,0 +1,12 @@
+{
+    "settings": [
+        {
+            "provider": "myprovider",
+            "domain": "mydomain.com",
+            "host": "@",
+            "password": "secretpassword",
+            "ip_version": "ipv4",
+            "provider_ip": true
+        }
+    ]
+}

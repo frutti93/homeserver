@@ -1,0 +1,49 @@
+version: "3.8"
+
+volumes:
+  pihole_configs:
+  dnsmasq_configs:
+
+networks:
+  frontend:
+    name: frontend
+
+services:
+  pihole:
+    image: pihole/pihole:v5.8
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    volumes:
+      - 'pihole_configs:/etc/pihole/'
+      - 'dnsmasq_configs:/etc/dnsmasq.d/'
+      # run `touch ./var-log/pihole.log` first unless you like errors
+      - './data/logs/pihole/pihole.log:/var/log/pihole.log'
+    environment:
+      WEBPASSWORD: ${PIHOLE_WEB_PASSWORD}
+      ServerIP: ${MY_IPV4}
+      ServerIPv6: ${MY_IPV6}
+      IPv6: "true"
+    restart: always
+    networks: 
+      - frontend
+    labels: #
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: "true"
+      # web interface
+      traefik.http.middlewares.redirect-https.redirectscheme.scheme: "https"
+      traefik.http.routers.pihole-http.rule: "Host(`${MY_IPV4}`)"
+      traefik.http.routers.pihole-http.entrypoints: "default-http"
+      traefik.http.routers.pihole-http.middlewares: "redirect-https@docker"
+      # 
+      traefik.http.routers.pihole-https.rule: "Host(`${MY_IPV4}`)"
+      traefik.http.routers.pihole-https.entrypoints: "default-https"
+      traefik.http.routers.pihole-https.tls.certresolver: "default1"
+      traefik.http.services.pihole.loadbalancer.server.port: "80"
+      #DNS
+      traefik.tcp.routers.dnstcp.entrypoints: "dnstcp"
+      traefik.tcp.routers.dnstcp.rule: "HostSNI(`*`)"
+      traefik.tcp.services.pihole.loadbalancer.server.port: "53"
+      #
+      traefik.udp.routers.dnsudp.entrypoints: "dnsudp"
+      traefik.udp.services.pihole.loadbalancer.server.port: "53"

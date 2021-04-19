@@ -1,0 +1,128 @@
+version: "3.8"
+
+volumes:
+  db:
+  nextcloud:
+  pihole_configs:
+  dnsmasq_configs:
+  nextcloud_apps:
+  nextcloud_config:
+  nextcloud_data:
+  nextcloud_theme:
+
+networks:
+  frontend:
+    name: frontend
+  backend:
+    name: backend
+  socket_proxy:
+    name: socket_proxy
+
+services:
+  watchtower:
+    command: --label-enable --cleanup --interval 300
+    image: containrrr/watchtower:1.1.6
+    network_mode: none
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+  dockerproxy:
+    depends_on:
+      - watchtower
+    environment:
+      CONTAINERS: 1
+    image: tecnativa/docker-socket-proxy
+    networks:
+      - socket_proxy
+    ports:
+      - 2375
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+  traefik:
+    image: traefik:2.4
+    command:
+      - "--api.dashboard=true" # Webinterface for debugging
+      - "--accesslog=false" # Debugging
+      - "--log.level=ERROR" # Debugging
+      #- "--accesslog.filters.statuscodes=400-410,500-511"
+      - "--providers.docker" 
+      - "--providers.docker.exposedbydefault=false" # No proxy for all containers who do not explicitely enable it
+      - "--providers.docker.endpoint=tcp://dockerproxy:2375"
+      - "--providers.docker.network=frontend"
+      - "--entrypoints.dnstcp.address=:53/tcp"
+      - "--entrypoints.dnsudp.address=:53/udp"
+      - "--entrypoints.default-http.address=:80"
+      - "--entrypoints.default-https.address=:443"
+      - "--entrypoints.ddnsupdate.address=:8000"
+      - "--entrypoints.dashboard.address=:8080"
+      - "--certificatesresolvers.default.acme.httpchallenge=true"
+      - "--certificatesresolvers.default.acme.httpchallenge.entrypoint=default-http"
+      - "--certificatesresolvers.default.acme.email=${MY_EMAIL}"
+      - "--certificatesresolvers.default.acme.storage=acme.json"
+      - "--certificatesresolvers.default1.acme.httpchallenge=true"
+      - "--certificatesresolvers.default1.acme.httpchallenge.entrypoint=default-http"
+      - "--certificatesresolvers.default1.acme.email=${MY_EMAIL}"
+      - "--certificatesresolvers.default1.acme.storage=acme.json"
+    depends_on:
+      - dockerproxy
+      - watchtower
+    networks:
+      - frontend
+      - socket_proxy
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 80:80
+      - 443:443
+      - 8000:8000/tcp
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./data/conf/traefik/acme.json:/acme.json
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: "true"
+      traefik.http.routers.dashboard.entrypoints: "dashboard"
+      traefik.http.routers.dashboard.rule: "PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      traefik.http.routers.dashboard.service: "api@internal"
+
+
+  ddns-updater:
+    image: qmcgaw/ddns-updater:v2
+    depends_on:
+      -  traefik
+    volumes:
+      - ./data/conf/dyndns:/updater/data
+    networks:
+      - frontend
+    environment:
+      #- CONFIG=
+      - PERIOD=5m
+      - UPDATE_COOLDOWN_PERIOD=5m
+      - PUBLICIP_FETCHERS=all
+      - PUBLICIP_HTTP_PROVIDERS=all
+      - PUBLICIPV4_HTTP_PROVIDERS=all
+      - PUBLICIPV6_HTTP_PROVIDERS=all
+      - PUBLICIP_DNS_PROVIDERS=all
+      - HTTP_TIMEOUT=10s
+      # Web UI
+      - LISTENING_PORT=8000
+      - ROOT_URL=/
+      # Backup
+      - BACKUP_PERIOD=0 # 0 to disable
+      - BACKUP_DIRECTORY=/updater/data
+      # Other
+      - LOG_LEVEL=info
+      - LOG_CALLER=hidden
+    restart: always
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: "true"
+      traefik.http.routers.ddns-updater.entrypoints: "ddnsupdate"
+      traefik.http.routers.ddns-updater.rule: "HostRegexp(`{domain:.+}`)"

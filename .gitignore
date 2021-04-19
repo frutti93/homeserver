@@ -1,0 +1,13 @@
+*.json
+.env
+acme.json
+config.json
+config.yaml
+*.log
+crontab.txt
+data/.cache/
+.borg/
+.ssh/
+rclone.conf
+.backup_repo/
+.config/

@@ -1,0 +1,91 @@
+version: "3.8"
+
+volumes:
+  db:
+  nextcloud:
+  nextcloud_apps:
+  nextcloud_config:
+  nextcloud_data:
+  nextcloud_theme:
+
+networks:
+  frontend:
+    name: frontend
+  backend:
+    name: backend
+
+services:
+  db:
+    image: mariadb:10-focal
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ADMIN_PASSWORD}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_USER=${MARIADB_USER}
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+  redis:
+    image: redis:6-alpine
+    restart: always
+    networks: 
+      - backend
+    command:
+      redis-server --requirepass ${REDIS_PASSWORD}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+  nextcloud:
+    image: frutti93/nextcloud_preconfigured:21-apache
+    restart: always
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - nextcloud:/var/www/html
+      - nextcloud_apps:/var/www/html/custom_apps
+      - nextcloud_config:/var/www/html/config
+      - nextcloud_data:/var/www/html/data
+      - nextcloud_theme:/var/www/html/themes/mytheme
+    networks: 
+      - frontend
+      - backend
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_HOST_PASSWORD: ${REDIS_PASSWORD}
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${MY_IPV4} ${NEXTCLOUD_DOMAIN} 127.0.0.1 localhost 
+      CUSTOM_APPS: calendar tasks previewgenerator keeweb
+      TRUSTED_PROXIES: 172.17.0.0/16
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.nextcloud.headers.customFrameOptionsValue: "ALLOW-FROM https://${NEXTCLOUD_DOMAIN}"
+      traefik.http.middlewares.nextcloud.headers.contentSecurityPolicy: "frame-ancestors 'self' ${NEXTCLOUD_DOMAIN} *.${NEXTCLOUD_DOMAIN}"
+      traefik.http.middlewares.nextcloud.headers.stsSeconds: "155520011"
+      traefik.http.middlewares.nextcloud.headers.stsIncludeSubdomains: "true"
+      traefik.http.middlewares.nextcloud.headers.stsPreload: "true"
+      traefik.http.middlewares.nextcloud.headers.customFrameOptionsValue: "SAMEORIGIN"
+      traefik.http.middlewares.nextcloud-caldav.redirectregex.permanent: "true"
+      traefik.http.middlewares.nextcloud-caldav.redirectregex.regex: "^https://(.*)/.well-known/(card|cal)dav"
+      traefik.http.middlewares.nextcloud-caldav.redirectregex.replacement: "https://$${1}/remote.php/dav/"
+      traefik.http.middlewares.redirect-https.redirectscheme.scheme: "https"
+      traefik.http.routers.nextcloud-http.entrypoints: "default-http"
+      traefik.http.routers.nextcloud-http.rule: "Host(`${NEXTCLOUD_DOMAIN}`)"
+      traefik.http.routers.nextcloud-http.middlewares: "redirect-https@docker"
+      traefik.http.routers.nextcloud.entrypoints: "default-https"
+      traefik.http.routers.nextcloud.rule: "Host(`${NEXTCLOUD_DOMAIN}`)"
+      traefik.http.routers.nextcloud.middlewares: "nextcloud-caldav, nextcloud"
+      traefik.http.routers.nextcloud.tls: "true"
+      traefik.http.routers.nextcloud.tls.certresolver: "default"
+      com.centurylinklabs.watchtower.enable: "true"
