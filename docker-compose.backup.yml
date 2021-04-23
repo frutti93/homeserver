@@ -16,7 +16,7 @@ volumes:
 
 services:
   borgmatic:
-    image: frutti93/borgmatic:1.0.2
+    image: frutti93/borgmatic:latest
     container_name: borgmatic
     networks:
       - backend
@@ -33,3 +33,4 @@ services:
       - TZ=${TZ}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE}
       - RCLONE_TARGET=${RCLONE_TARGET}
+      - COMPOSE_PROJECT=${COMPOSE_PROJECT_NAME}
