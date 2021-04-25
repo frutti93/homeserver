@@ -11,3 +11,4 @@ data/.cache/
 rclone.conf
 .backup_repo/
 .config/
+msmtp.env

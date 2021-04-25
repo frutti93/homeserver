@@ -24,6 +24,11 @@ To use this container create the two files:
 For more information see here: [docker-borgmatic](https://github.com/frutti93/docker-borgmatic). \
 DISCLAIMER: This is also my repository.
 
+To initialize the repository run: \
+`docker exec borgmatic sh -c "borgmatic --init --encryption repokey-blake2"` \
+or \
+`docker exec borgmatic sh -c "borgmatic --init --encryption keyfile-blake2"`
+
 ### `docker-compose.nextcloud.yml` - Nextcloud
 This runs a complete nextcloud server, with MariaDB and Redis behind the reverse proxy. 
 The default setup uses a preconfigured image by be, which contains:
