@@ -25,14 +25,17 @@ install_custom_apps() {
 
 install_custom_apps
 
+echo 'Set proxy stuff'
+run_as 'php occ config:system:set overwriteprotocol --value="https"'
+
 echo 'Configuring preview generator...'
-run_as "php /var/www/html/occ config:app:set previewgenerator squareSizes --value='32 256'"
-run_as "php /var/www/html/occ config:app:set previewgenerator widthSizes  --value='256 384'"
-run_as "php /var/www/html/occ config:app:set previewgenerator heightSizes --value='256'"
-run_as "php /var/www/html/occ config:system:set preview_max_x --value 2048"
-run_as "php /var/www/html/occ config:system:set preview_max_y --value 2048"
-run_as "php /var/www/html/occ config:system:set jpeg_quality --value 60"
-run_as "php /var/www/html/occ config:app:set preview jpeg_quality --value='60'"
+run_as 'php /var/www/html/occ config:app:set previewgenerator squareSizes --value="32 256"'
+run_as 'php /var/www/html/occ config:app:set previewgenerator widthSizes  --value="256 384"'
+run_as 'php /var/www/html/occ config:app:set previewgenerator heightSizes --value=256'
+run_as 'php /var/www/html/occ config:system:set preview_max_x --value 2048'
+run_as 'php /var/www/html/occ config:system:set preview_max_y --value 2048'
+run_as 'php /var/www/html/occ config:system:set jpeg_quality --value 60'
+run_as 'php /var/www/html/occ config:app:set preview jpeg_quality --value=60'
 
 echo 'Creating cronjob...'
 echo '* 1 * * * php occ preview:pre-generate' >> /var/spool/cron/crontabs/www-data
