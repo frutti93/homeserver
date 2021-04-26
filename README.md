@@ -30,12 +30,9 @@ or \
 `docker exec borgmatic sh -c "borgmatic --init --encryption keyfile-blake2"`
 
 ### `docker-compose.nextcloud.yml` - Nextcloud
-This runs a complete nextcloud server, with MariaDB and Redis behind the reverse proxy. 
-The default setup uses a preconfigured image by be, which contains:
-* Activated cronjob
-* Possibility to preinstall apps, the included compose installs calendar, tasks, previewgenerator, keeweb
-* Preview generator will be run once a day to auto generate image previews
-* *will be updated...*
+This runs a complete nextcloud server, with MariaDB and Redis behind the reverse proxy. There is also a container running activated a cronjob and automatic preview generation. Preview generator will be run once a day to auto generate image previews.
+To initally run preview generation execute: \
+`docker exec -t -u www-data mysetup_nextcloud_1 php /var/www/html/occ preview:generate-all -vvv`
 
 If you dont want this, just use the regular nextcloud images.
 
