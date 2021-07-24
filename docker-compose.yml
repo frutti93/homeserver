@@ -48,8 +48,8 @@ services:
     image: traefik:2.4
     command:
       - "--api.dashboard=true" # Webinterface for debugging
-      - "--accesslog=false" # Debugging
-      - "--log.level=ERROR" # Debugging
+      - "--accesslog=true" # Debugging
+      - "--log.level=DEBUG" # Debugging
       #- "--accesslog.filters.statuscodes=400-410,500-511"
       - "--providers.docker" 
       - "--providers.docker.exposedbydefault=false" # No proxy for all containers who do not explicitely enable it
@@ -80,7 +80,7 @@ services:
       - 53:53/udp
       - 80:80
       - 443:443
-      - 8000:8000/tcp
+      - 8000:8000
       - 8080:8080
     restart: always
     volumes:
@@ -111,6 +111,7 @@ services:
       - PUBLICIPV6_HTTP_PROVIDERS=all
       - PUBLICIP_DNS_PROVIDERS=all
       - HTTP_TIMEOUT=10s
+      - IPV6_PREFIX=/64
       # Web UI
       - LISTENING_PORT=8000
       - ROOT_URL=/
@@ -118,7 +119,7 @@ services:
       - BACKUP_PERIOD=0 # 0 to disable
       - BACKUP_DIRECTORY=/updater/data
       # Other
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
       - LOG_CALLER=hidden
     restart: always
     labels:

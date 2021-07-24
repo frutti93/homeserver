@@ -1,4 +1,6 @@
 *.json
+run_all.sh
+stop_all.sh
 .env
 acme.json
 config.json
