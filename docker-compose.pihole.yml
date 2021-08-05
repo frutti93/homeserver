@@ -27,6 +27,9 @@ services:
     restart: always
     networks: 
       - frontend
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
     labels: #
       com.centurylinklabs.watchtower.enable: "true"
       traefik.enable: "true"
@@ -41,9 +44,9 @@ services:
       traefik.http.routers.pihole-https.tls.certresolver: "default1"
       traefik.http.services.pihole.loadbalancer.server.port: "80"
       #DNS
-      traefik.tcp.routers.dnstcp.entrypoints: "dnstcp"
-      traefik.tcp.routers.dnstcp.rule: "HostSNI(`*`)"
-      traefik.tcp.services.pihole.loadbalancer.server.port: "53"
-      #
-      traefik.udp.routers.dnsudp.entrypoints: "dnsudp"
-      traefik.udp.services.pihole.loadbalancer.server.port: "53"
+      #traefik.tcp.routers.dnstcp.entrypoints: "dnstcp"
+      #traefik.tcp.routers.dnstcp.rule: "HostSNI(`*`)"
+      #traefik.tcp.services.pihole.loadbalancer.server.port: "53"
+      ##
+      #traefik.udp.routers.dnsudp.entrypoints: "dnsudp"
+      #traefik.udp.services.pihole.loadbalancer.server.port: "53"
