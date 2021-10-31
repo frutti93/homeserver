@@ -42,7 +42,7 @@ services:
       com.centurylinklabs.watchtower.enable: "false"
 
   cron:
-    image: nextcloud:22.0.0-apache
+    image: nextcloud:22.2.0-apache
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -63,7 +63,7 @@ services:
       com.centurylinklabs.watchtower.enable: "false"
 
   nextcloud:
-    image: nextcloud:22.0.0-apache
+    image: nextcloud:22.2.0-apache
     restart: always
     depends_on:
       - db
