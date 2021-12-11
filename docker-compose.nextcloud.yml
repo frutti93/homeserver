@@ -42,7 +42,7 @@ services:
       com.centurylinklabs.watchtower.enable: "false"
 
   cron:
-    image: nextcloud:22-apache
+    image: nextcloud:23-apache
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -63,7 +63,7 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
 
   nextcloud:
-    image: nextcloud:22-apache
+    image: nextcloud:23-apache
     restart: always
     depends_on:
       - db
@@ -95,7 +95,7 @@ services:
       traefik.http.middlewares.nextcloud.headers.stsSeconds: "155520011"
       traefik.http.middlewares.nextcloud.headers.stsIncludeSubdomains: "true"
       traefik.http.middlewares.nextcloud.headers.stsPreload: "true"
-      traefik.http.middlewares.nextcloud.headers.customFrameOptionsValue: "SAMEORIGIN"
+      traefik.http.middlewares.nextcloud.headers.customresponseheaders.X-Frame-Options: "SAMEORIGIN"
       traefik.http.middlewares.nextcloud-caldav.redirectregex.permanent: "true"
       traefik.http.middlewares.nextcloud-caldav.redirectregex.regex: "^https://(.*)/.well-known/(card|cal)dav"
       traefik.http.middlewares.nextcloud-caldav.redirectregex.replacement: "https://$${1}/remote.php/dav/"
