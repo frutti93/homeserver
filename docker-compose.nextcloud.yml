@@ -42,7 +42,7 @@ services:
       com.centurylinklabs.watchtower.enable: "false"
 
   cron:
-    image: nextcloud:22.2.0-apache
+    image: nextcloud:22-apache
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -60,10 +60,10 @@ services:
       - db
       - redis
     labels: 
-      com.centurylinklabs.watchtower.enable: "false"
+      com.centurylinklabs.watchtower.enable: "true"
 
   nextcloud:
-    image: nextcloud:22.2.0-apache
+    image: nextcloud:22-apache
     restart: always
     depends_on:
       - db
@@ -108,4 +108,4 @@ services:
       traefik.http.routers.nextcloud.middlewares: "nextcloud-caldav, nextcloud"
       traefik.http.routers.nextcloud.tls: "true"
       traefik.http.routers.nextcloud.tls.certresolver: "default"
-      com.centurylinklabs.watchtower.enable: "false"
+      com.centurylinklabs.watchtower.enable: "true"
