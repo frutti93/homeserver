@@ -45,7 +45,7 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
 
   traefik:
-    image: traefik:2.4
+    image: traefik:2.5
     command:
       - "--api.dashboard=true" # Webinterface for debugging
       - "--accesslog=false" # Debugging
@@ -55,6 +55,7 @@ services:
       - "--providers.docker.exposedbydefault=false" # No proxy for all containers who do not explicitely enable it
       - "--providers.docker.endpoint=tcp://dockerproxy:2375"
       - "--providers.docker.network=frontend"
+      - "--providers.file.filename=/config.yml"
       - "--entrypoints.dnstcp.address=:53/tcp"
       - "--entrypoints.dnsudp.address=:53/udp"
       - "--entrypoints.default-http.address=:80"
@@ -83,6 +84,7 @@ services:
     restart: always
     volumes:
       - ./data/conf/traefik/acme.json:/acme.json
+      - ./data/conf/traefik/config.yml:/config.yml
     labels:
       com.centurylinklabs.watchtower.enable: "true"
       traefik.enable: "true"
